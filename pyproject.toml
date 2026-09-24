@@ -8,3 +8,19 @@ dependencies = []
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "pytest (>=9.1.1,<10.0.0)"
+]
+
+[tool.poetry]
+# The repo is a set of scripts, not an installable package; Poetry only manages dependencies.
+package-mode = false
+
+[tool.pytest.ini_options]
+testpaths = ["test_sensor.py", "tests"]
+pythonpath = ["."]
+markers = [
+    "slow: long-running tests (deselect with -m \"not slow\")",
+]
