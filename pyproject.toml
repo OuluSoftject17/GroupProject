@@ -8,3 +8,17 @@ dependencies = []
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+# This repository is not an installable package, only a project with
+# dependencies. Without this, `poetry install` fails looking for a
+# legacy_sensor package.
+package-mode = false
+
+[dependency-groups]
+dev = [
+    "pytest (>=9.1.1,<10.0.0)"
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
