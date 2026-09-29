@@ -23,13 +23,10 @@ PROFILE_PATH = Path(__file__).resolve().parent / "profile.toml"
 PYTHON = getattr(sys, "_base_executable", sys.executable)
 
 
-def load_profile(path=PROFILE_PATH, **overrides):
-    """Read the profile. overrides look like link={"drop_rate": 0}."""
+def load_profile(path=PROFILE_PATH):
+    """Read the profile."""
     with open(path, "rb") as f:
-        profile = tomllib.load(f)
-    for section, values in overrides.items():
-        profile[section].update(values)
-    return profile
+        return tomllib.load(f)
 
 
 class Device:

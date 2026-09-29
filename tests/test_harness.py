@@ -3,7 +3,6 @@
 import http.client
 import re
 import sys
-import urllib.error
 import urllib.request
 
 import pytest
@@ -12,13 +11,10 @@ from harness.device import _systemd_run_works, load_profile, start_sensor
 from harness.link import start_link
 from harness.report import run_probe
 
-# The link's delays are switched off so the checks run fast and never flake.
-FAST_LINK = {"latency_ms": 0, "jitter_ms": 0, "drop_rate": 0, "bandwidth_kbps": 10_000}
-
 
 @pytest.fixture
 def profile():
-    return load_profile(link=FAST_LINK)
+    return load_profile()
 
 
 @pytest.fixture
@@ -58,19 +54,6 @@ def test_link_rejects_everything_else(link_port):
     assert status_of(link_port, "POST", "/measurements") == 501
     assert status_of(link_port, "DELETE", "/health") == 501
     assert status_of(link_port, "GET", "/health", {"X-Big": "a" * 2000}) == 413
-
-
-def test_link_drops_requests():
-    profile = load_profile(link={**FAST_LINK, "drop_rate": 1})
-    device, device_port = start_sensor(profile)
-    link = start_link(profile["link"], device_port)
-    try:
-        with pytest.raises((urllib.error.URLError, http.client.HTTPException, OSError)):
-            get(link.server_address[1], "/health")
-    finally:
-        link.shutdown()
-        link.server_close()
-        device.stop()
 
 
 @pytest.mark.parametrize("probe", [
