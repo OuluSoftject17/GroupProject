@@ -1,8 +1,8 @@
 # Simulated device harness
 
 The harness runs the legacy sauna sensor (`sensor.py`) as if it were a cheap
-embedded controller: a slow CPU, little memory, a stripped-down runtime and a
-weak, unreliable uplink. It does not change `sensor.py`.
+embedded controller: a slow CPU, little memory and a stripped-down runtime.
+It does not change `sensor.py`.
 
 It is plain Python run through Poetry. The group chose not to use Docker or VMs.
 
@@ -28,36 +28,21 @@ that address only. Ctrl+C stops everything.
  client ──HTTP──▶  link  ──HTTP──▶  device
  (you)          127.0.0.1:<port>   127.0.0.1:<internal port>
                  - GET /health, /, /measurements only
-                 - latency, jitter, low bandwidth, drops
                                      - sensor.py in its own process
                                      - OS limits: CPU, memory, one process
                                      - sandbox: modules, disk, network
 ```
 
-| File | What it does |
-| --- | --- |
-| `profile.toml` | Every limit, with the reason for each value. |
-| `device.py` | Starts the device process and applies the OS limits. |
-| `winjob.py` | Windows Job Object calls used by `device.py`. |
-| `firmware.py` | Runs inside the device: installs the sandbox, then serves the sensor or runs one probe. |
-| `link.py` | The only way in. Filters requests and simulates the uplink. |
-| `report.py` | Measures the device against the same sensor unrestricted. |
-| `__main__.py` | The `up` and `report` commands. |
-| `../tests/test_harness.py` | Checks that each restriction really applies. |
-
 ## The profile
 
 All values live in `profile.toml`. The device imitates an embedded-Linux sauna
-controller on a GPRS/2G-class uplink.
+controller.
 
 | Setting | Value | Imitates |
 | --- | --- | --- |
 | `cpu_percent` | 10 | 10 % of one desktop core, roughly a single-core ARM at a few hundred MHz |
 | `memory_mb` | 32 | a 64 MB controller with about half left for the application |
 | `allowed_modules` | list | firmware that ships only what the sensor needs (no `ssl`, `hashlib`, `subprocess`, `ctypes`, ...) |
-| `bandwidth_kbps` | 20 | a GPRS modem (about 20-40 kbit/s in practice) |
-| `latency_ms`, `jitter_ms` | 300, 100 | typical 2G/GPRS delay |
-| `drop_rate` | 0.02 | 2 % of requests lost on the way |
 | `max_request_bytes`, `max_response_bytes` | 1024 | the real API needs far less |
 
 ## What is enforced, and how

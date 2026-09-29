@@ -72,10 +72,8 @@ def benchmark(profile, seconds):
 
 def print_report(profile, seconds):
     device = profile["device"]
-    link = profile["link"]
     print(f"Profile: CPU {device['cpu_percent']}% of one core, "
-          f"memory {device['memory_mb']} MB, link {link['bandwidth_kbps']} kbit/s, "
-          f"{link['latency_ms']}+/-{link['jitter_ms']} ms, drop {link['drop_rate']:.0%}")
+          f"memory {device['memory_mb']} MB")
     print(f"Sequential GET /measurements for {seconds} s per row.\n")
 
     rows, enforced = benchmark(profile, seconds)

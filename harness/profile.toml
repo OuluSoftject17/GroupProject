@@ -1,9 +1,8 @@
 # Simulated device profile.
 #
 # The device imitates a cheap embedded-Linux sauna controller: one slow ARM
-# core, a few tens of megabytes of RAM, a stripped-down runtime and a weak
-# uplink (an old GPRS/2G modem or a long serial radio link). The numbers are
-# rough and are meant to be argued about, not taken as exact.
+# core, a few tens of megabytes of RAM and a stripped-down runtime. The numbers
+# are rough and are meant to be argued about, not taken as exact.
 
 [device]
 # Share of ONE host core the device may use. 10 % of a modern desktop core is
@@ -42,18 +41,6 @@ allowed_modules = [
 ]
 
 [link]
-# The uplink between the device and the outside world.
-# GPRS-class modems give roughly 20-40 kbit/s in practice.
-bandwidth_kbps = 20
-
-# Round-trip delay added before each request reaches the device, plus random
-# jitter of up to +/- jitter_ms. Typical for 2G/GPRS.
-latency_ms = 300
-jitter_ms = 100
-
-# Share of requests that are lost on the way (the client gets no answer).
-drop_rate = 0.02
-
 # The link refuses anything bigger than this. The real API needs far less.
 max_request_bytes = 1024
 max_response_bytes = 1024
