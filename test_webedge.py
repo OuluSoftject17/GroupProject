@@ -151,6 +151,22 @@ class WebEdgeTests(unittest.TestCase):
 
         self.assertEqual(error.exception.code, 400)
 
+    def test_invalid_public_key_is_rejected(self):
+        request = Request(
+            f"http://localhost:{self.webedge_port}/",
+            data=self.encrypt_request("/test"),
+            method="GET",
+        )
+        request.add_header(
+            "X-Client-Public-Key",
+            base64.b64encode(b"invalid public key").decode(),
+        )
+
+        with self.assertRaises(HTTPError) as error:
+            urlopen(request)
+
+        self.assertEqual(error.exception.code, 400)
+
 
 if __name__ == "__main__":
     unittest.main()
