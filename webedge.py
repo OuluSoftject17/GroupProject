@@ -2,6 +2,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 import base64
+import binascii
 import os
 
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
@@ -52,7 +53,8 @@ class WebEdgeHandler(BaseHTTPRequestHandler):
                 return
 
             client_key_data = base64.b64decode(
-                self.headers["X-Client-Public-Key"]
+                self.headers["X-Client-Public-Key"],
+                validate=True,
             )
             client_public_key = serialization.load_der_public_key(
                 client_key_data
@@ -80,6 +82,7 @@ class WebEdgeHandler(BaseHTTPRequestHandler):
             ValueError,
             TypeError,
             UnicodeDecodeError,
+            binascii.Error,
         ):
             self.send_error(400, "Invalid RSA request")
             return
