@@ -1,0 +1,48 @@
+# Runs the test suite on every pull request to main and every push to main.
+#
+# Two jobs run in parallel, one on Windows and one on Linux, because the
+# harness enforces its limits differently on each (see harness/README.md).
+# On Linux, test_device_cpu_is_slower is expected to skip when
+# `systemd-run --user` is unavailable.
+#
+# `python -m harness report` is left out on purpose: it measures speed, and
+# shared CI machines give unreliable timings.
+
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# The workflow only reads the repository.
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Tests (${{ matrix.os }})
+    strategy:
+      # Let the other job finish when one fails, so both results are visible.
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v7
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry and the project
+        run: |
+          python -m pip install "poetry>=2,<3"
+          poetry install
+
+      - name: Run the tests
+        run: poetry run pytest
