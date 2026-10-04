@@ -22,7 +22,8 @@ memory_mb = 32
 # import, recorded on Python 3.12-3.14 on Windows and Linux. ssl and the
 # compression modules are left out on purpose: the standard library only
 # tries to import them and carries on without them. _sha2 stays because
-# Python 3.12's random module needs it for seeding.
+# Python 3.12's random module needs it for seeding, and posixpath stays
+# because Python 3.12's mimetypes imports it when it loads, also on Windows.
 allowed_modules = [
     "sensor",
     # sensor.py and the HTTP server
@@ -32,7 +33,7 @@ allowed_modules = [
     "ipaddress", "shutil", "fnmatch", "copy", "datetime", "_datetime",
     "calendar", "locale", "_locale", "string", "_string", "struct", "_struct",
     "threading", "weakref", "_weakrefset", "encodings", "stringprep",
-    "unicodedata", "errno", "array",
+    "unicodedata", "errno", "array", "posixpath",
     # language basics that Windows loads at start-up but Linux does not
     "re", "_sre", "enum", "types", "functools", "_functools", "collections",
     "_collections", "operator", "_operator", "itertools", "keyword",
