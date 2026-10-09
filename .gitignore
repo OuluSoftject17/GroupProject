@@ -216,3 +216,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# WebEdge private keys (see documentation/webedge-keys.md)
+keys/
+*-private.pem
