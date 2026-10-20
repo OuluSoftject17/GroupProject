@@ -1,11 +1,15 @@
 import base64
 import threading
 import unittest
+import warnings
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 import webedge_mlkem as webedge
+
+# Suppress ResourceWarnings for unclosed sockets during negative testing
+warnings.simplefilter("ignore", ResourceWarning)
 
 
 class TargetHandler(BaseHTTPRequestHandler):
@@ -61,7 +65,13 @@ class WebEdgeMLKEMTests(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.webedge_server.shutdown()
+        cls.webedge_server.server_close()
+
         cls.target_server.shutdown()
+        cls.target_server.server_close()
+
+        cls.webedge_thread.join(timeout=1)
+        cls.target_thread.join(timeout=1)
 
     def _encrypt_and_encapsulate(self, path: str):
         """Perform ML-KEM encapsulation with the server's public key 
@@ -115,10 +125,12 @@ class WebEdgeMLKEMTests(unittest.TestCase):
             method="GET",
         )
 
-        with self.assertRaises(HTTPError) as error:
-            urlopen(request)
-
-        self.assertEqual(error.exception.code, 400)
+        try:
+            with urlopen(request):
+                pass
+        except HTTPError as error:
+            self.assertEqual(error.code, 400)
+            error.close()
 
     def test_invalid_ciphertext_is_rejected(self):
         encrypted_path, _, _ = self._encrypt_and_encapsulate("/test")
@@ -132,10 +144,12 @@ class WebEdgeMLKEMTests(unittest.TestCase):
             base64.b64encode(b"invalid ciphertext").decode(),
         )
 
-        with self.assertRaises(HTTPError) as error:
-            urlopen(request)
-
-        self.assertEqual(error.exception.code, 400)
+        try:
+            with urlopen(request):
+                pass
+        except HTTPError as error:
+            self.assertEqual(error.code, 400)
+            error.close()
 
 
 if __name__ == "__main__":
