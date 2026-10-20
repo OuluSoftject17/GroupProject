@@ -32,7 +32,7 @@ class WebEdgeMLKEMTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.target_server = HTTPServer(
-            ("localhost", 0),
+            ("127.0.0.1", 0),
             TargetHandler,
         )
         cls.target_port = cls.target_server.server_address[1]
@@ -43,11 +43,11 @@ class WebEdgeMLKEMTests(unittest.TestCase):
         )
         cls.target_thread.start()
 
-        webedge.TARGET_HOST = "localhost"
+        webedge.TARGET_HOST = "127.0.0.1"
         webedge.TARGET_PORT = cls.target_port
 
         cls.webedge_server = HTTPServer(
-            ("localhost", 0),
+            ("127.0.0.1", 0),
             webedge.WebEdgeHandler,
         )
         cls.webedge_port = cls.webedge_server.server_address[1]
@@ -76,7 +76,7 @@ class WebEdgeMLKEMTests(unittest.TestCase):
         encrypted_path, ciphertext_b64, self._last_shared_secret = self._encrypt_and_encapsulate(path)
         
         request = Request(
-            f"http://localhost:{self.webedge_port}/",
+            f"http://127.0.0.1:{self.webedge_port}/",
             data=encrypted_path,
             method="GET",
         )
@@ -111,7 +111,7 @@ class WebEdgeMLKEMTests(unittest.TestCase):
 
     def test_unencrypted_request_is_rejected(self):
         request = Request(
-            f"http://localhost:{self.webedge_port}/",
+            f"http://127.0.0.1:{self.webedge_port}/",
             method="GET",
         )
 
@@ -123,7 +123,7 @@ class WebEdgeMLKEMTests(unittest.TestCase):
     def test_invalid_ciphertext_is_rejected(self):
         encrypted_path, _, _ = self._encrypt_and_encapsulate("/test")
         request = Request(
-            f"http://localhost:{self.webedge_port}/",
+            f"http://127.0.0.1:{self.webedge_port}/",
             data=encrypted_path,
             method="GET",
         )
