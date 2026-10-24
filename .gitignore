@@ -223,3 +223,7 @@ shell.nix
 # WebEdge private keys (see documentation/webedge-keys.md)
 keys/
 *-private.pem
+
+# Benchmark reports are per machine and per run. Force-add (git add -f)
+# the ones a report cites.
+benchmark-results/
