@@ -68,11 +68,12 @@ def test_device_lacks_capability(profile, probe):
 
 @pytest.mark.skipif(sys.platform != "win32" and not _systemd_run_works(),
                     reason="no CPU rate cap on this machine")
-# Quarantined: on shared CI runners the CPU cap sometimes has no effect within
-# the short probe, so the timing comparison fails at random. It is reliable on
-# a local machine, so it still runs there. Fixing it is tracked in #12.
-@pytest.mark.skipif(os.environ.get("CI") == "true",
-                    reason="flaky on shared CI runners, see #12")
+# Quarantined: on the shared Windows CI runners the CPU cap sometimes has no
+# effect within the short probe, so the timing comparison fails at random. It
+# is reliable on a local machine and still runs there, and on Linux CI.
+# Fixing it is tracked in #12.
+@pytest.mark.skipif(os.environ.get("CI") == "true" and sys.platform == "win32",
+                    reason="flaky on shared Windows CI runners, see #12")
 def test_device_cpu_is_slower(profile):
     def seconds(restricted):
         result = run_probe(profile, "cpu_work", restricted)
