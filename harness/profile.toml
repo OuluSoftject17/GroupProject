@@ -1,0 +1,50 @@
+# Simulated device profile.
+#
+# The device imitates a cheap embedded-Linux sauna controller: one slow ARM
+# core, a few tens of megabytes of RAM and a stripped-down runtime. The numbers
+# are rough and are meant to be argued about, not taken as exact.
+
+[device]
+# Share of ONE host core the device may use. 10 % of a modern desktop core is
+# in the same ballpark as a single-core ARM chip clocked at a few hundred MHz.
+cpu_percent = 10
+
+# Memory the device application may commit. A 64 MB controller has roughly
+# half left for the application after the OS. A bare CPython running the
+# sensor needs about 13-20 MB, so this leaves little headroom.
+memory_mb = 32
+
+# Top-level modules shipped with the device runtime. Anything else is "not
+# installed" (for example ssl, hashlib, sqlite3, ctypes, subprocess), just like
+# firmware that only ships what the application needs.
+#
+# This list is what sensor.py and the standard-library HTTP server actually
+# import, recorded on Python 3.12-3.14 on Windows and Linux. ssl and the
+# compression modules are left out on purpose: the standard library only
+# tries to import them and carries on without them. _sha2 stays because
+# Python 3.12's random module needs it for seeding, and posixpath stays
+# because Python 3.12's mimetypes imports it when it loads, also on Windows.
+allowed_modules = [
+    "sensor",
+    # sensor.py and the HTTP server
+    "json", "_json", "random", "_random", "_sha2", "math", "bisect", "_bisect",
+    "http", "email", "html", "urllib", "mimetypes", "quopri", "base64",
+    "binascii", "socket", "_socket", "socketserver", "select", "selectors",
+    "ipaddress", "shutil", "fnmatch", "copy", "datetime", "_datetime",
+    "calendar", "locale", "_locale", "string", "_string", "struct", "_struct",
+    "threading", "weakref", "_weakrefset", "encodings", "stringprep",
+    "unicodedata", "errno", "array", "posixpath",
+    # language basics that Windows loads at start-up but Linux does not
+    "re", "_sre", "enum", "types", "functools", "_functools", "collections",
+    "_collections", "operator", "_operator", "itertools", "keyword",
+    "reprlib", "copyreg", "warnings", "_py_warnings", "_types", "_contextvars",
+    "io",
+]
+
+[link]
+# The link refuses anything bigger than this. The real API needs far less.
+max_request_bytes = 1024
+max_response_bytes = 1024
+
+# How long the link waits for the device before giving up.
+device_timeout_s = 5
