@@ -219,3 +219,7 @@ __marimo__/
 
 # Personal nix shell used by precisely one (1) developer
 shell.nix
+
+# WebEdge private keys (see documentation/webedge-keys.md)
+keys/
+*-private.pem
